@@ -7,63 +7,68 @@ function infoGeneral(){
     echo "\n";
     echo "***MANUAL D'ÚS***\n";
     echo "\n";
-    echo "La sintaxis correcta es: php <fitxer.php> <tasca> <titol> <contingut>\n";
-    echo "\n";
+    
     echo "Tasques disponibles:\n";
-    echo "-add: Permet afegir una tasca\n";
-    echo "-list: Mostra per pantalla totes les tasques disponibles\n";
-    echo "-mark: Pots modificar una tasca\n";
-    echo "-delete: Tens la opcio de eliminar qualsevol tasca\n";
+    echo "add: Permet afegir una tasca\n";
+    echo "list: Mostra per pantalla totes les tasques disponibles\n";
+    echo "mark: Pots modificar una tasca\n";
+    echo "delete: Tens la opcio de eliminar qualsevol tasca\n";
+    echo "\n";
+    echo "SINTAXIS CORRECTA:\n";
 
+    echo "-a --action           Acció a realitzar\n";
+    echo "-t --title            Titol de la tasca a ingresar\n";
+    echo "-d --description      Descripcio de la tasca\n";
+
+    echo "EXEMPLE: php <document.php -a add --title deures -d <descripcio tasca>\n";
 }
 
 function infoadd(){
     echo "\n";
     echo "Per a afegir una tasca, es necessari posar els següents arguments: \n";
-    echo "php <fitxer> <add> <titol de la tasca> <contingut>\n";
+    echo "php <fitxer.php> (-a/--action) <add> (-t/--title) <titol de la tasca> (-d/--description) <contingut>\n";
     echo "\n";
-    echo "NOMES ES NECESSARI AFEGIR 3 ARGUMENTS !!\n";
 }
 
 function infoDelete(){
     echo "\n";
     echo "Per a esborrar una tasca, es necessari posar els següents arguments: \n";
-    echo "php <fitxer> <delete> <id de la tasca>\n";
+    echo "php <fitxer.php> (-a/--action) <delete> (-t/--title) <id de la tasca>\n";
     echo "\n";
-    echo "NOMES ES NECESSARI AFEGIR 2 ARGUMENTS !!\n";
 }
 
 function infoList(){
     echo "\n";
-    echo "Per a llistar les tasques disponibles, nomes es necessari un argument: ";
-    echo "\n";
-    echo "EXEMPLE: php <document.php> list\n";
+    echo "Per a esborrar una tasca, es necessari posar els següents arguments: \n";
+    echo "php <fitxer.php> (-a/--action) <list>\n";
+    echo "EXEMPLE: php <document.php> (-a/--action) list\n";
 }
 
 function infoMarcar(){
     echo "\n";
     echo "Per a marcar una tasca com a finalitzada: \n";
     echo "Hauras de escriure la seguent estructura: \n";
-    echo "php <document.php> <id_tasca> <done>\n";
+    echo "php <fitxer.php> (-a/--action) <mark> (-t/--title)<id de la tasca> (-d/--description) <done>\n";
 }
 
 function add($titol, $descripcio, $conn) {
 
     if(trim($titol) != "" && trim($descripcio) != ""){
+
         $sql = "INSERT INTO events (titol, descripcio) VALUES ('$titol', '$descripcio')";
         $resultado = mysqli_query($conn, $sql);
         return $resultado;
+
     }else{
         infoadd();
     }
-
 }
    
 
-function delete($accio,$titol,$conn){
+function delete($titol,$conn){
 
-    if(trim($accio) != "" && trim($titol) != ""){
-        $sql = "DELETE FROM events WHERE ID = '$titol'";
+    if(trim($titol) != ""){
+        $sql = "DELETE FROM events WHERE id = '$titol'";
         $resultado = mysqli_query($conn,$sql);
         return $resultado;
     }else{
@@ -72,10 +77,9 @@ function delete($accio,$titol,$conn){
  
 }
 
-
 function listar($accio,$conn){
 
-    if (trim($accio) != ""){
+    if (trim($accio) != "" ){
         $sql = "SELECT * FROM events";
         $resultado = mysqli_query($conn,$sql);
         return $resultado;
@@ -85,15 +89,14 @@ function listar($accio,$conn){
 }
 
 
-function mark($accio,$titol,$descripcio,$conn){
-    if(trim($accio) != "" && trim($titol) != "" && trim($descripcio) !=""){
+function mark($titol, $descripcio, $conn){
+    if(trim($titol) != "" && trim($descripcio) != ""){
         $sql = "UPDATE events SET completada = 1 WHERE ID = '$titol' AND '$descripcio' = 'done'";
         $resultado = mysqli_query($conn, $sql); 
         return $resultado;
     }else{
         infoMarcar();
     }
-    
 }
 
 const add = 'add';
@@ -105,15 +108,19 @@ if (php_sapi_name() == 'cgi') {
     die('El programa nomes es pot utilitzar en CLI');
 } else{
 
-    if ($argc <= 4){
+    $arguments = getopt("a:d:t:", array("action:","title:","description:"));
 
 
-            switch ($argv[1]){
+    if ($argc <= 7){
+        
+            switch ($arguments["a"] ?? $arguments ["action"]){
                 case add:
-                    if ($argc == 4 && !empty($argv[1]) && !empty($argv[2]) && !empty($argv[3]))   {
+                    if (($argc == 7 && (!empty($arguments["t"]) || !empty($arguments["title"])) && (!empty($arguments["d"]) || !empty($arguments["description"])))) {
+                        
+                        $titol = $arguments['t'] ?? $arguments['title'];
+                        $descripcio = $arguments['d'] ?? $arguments['description'];
+                        $resultado = add($titol, $descripcio, $conn);
 
-                        $resultado = add($argv[2],$argv[3],$conn);
-    
                         if ($resultado){
                             echo "Tasca ingresada de forma correcta\n";
                         }else{
@@ -126,61 +133,74 @@ if (php_sapi_name() == 'cgi') {
                     break;
 
                 case delete:
-                    if ($argc == 3 && !empty($argv[1]) && !empty($argv[2])){
+                    if ($argc == 5 && (!empty($arguments["t"]) || !empty($arguments["title"]))){
                         
-                        $resultado = delete($argv[1],$argv[2],$conn);
+                        $titol = $arguments['t'] ?? $arguments['title'];
+                        $resultado = delete($titol, $conn);
 
-                        if ($resultado){
-                            echo "S'ha esborrat correctament la tasca '$argv[2]'\n";
-                        }else{
-                            echo "No s'ha pogut borrar la tasca '$argv[2]'\n";
+                      
+                        if ($resultado) {
+                            echo "S'ha esborrat correctament la tasca '$titol'\n";
+                        } else {
+                            echo "No s'ha pogut borrar la tasca '$titol'\n";
                         }
-                    }else{
+                    } else {
                         infoDelete();
                     }
                     break;
-                case listar:
-                    if ($argc == 2 && !empty($argv[1])){
-                        
-                        $resultado = listar($argv[1],$conn);
-                        if ($resultado){
-                            echo "  RESULTATS TROBATS: \n";
-                            echo "______________________________________________________\n";
-                            echo "\n";
-                            echo "ID  TITOL      DESCRIPCIO    ESTAT\n";
-    
-                            while ($fila = mysqli_fetch_assoc($resultado)) {
-                                echo $fila["id"]. " | ";
-                                echo $fila["titol"]. " | ";
-                                echo $fila["descripcio"]. " | ";
-                                echo $fila["completada"]. " | ";
-                                echo "\n";
-                            }
-                        }else{
-                            echo "No s'ha trobat cap registre en la base de dades \n";
-                        }
-        
-                    }else{
-                        infoList();
-                    }
-                    break;
-                case mark:
-                    if ($argc == 4){
-                        if ($argv[3] == 'done' && !empty($argv[1]) && !empty($argv[2])){
+
+                    case listar:
+                        if (($argc == 3 && !empty($arguments["a"])) || ($argc == 3 && !empty($arguments["action"]))) {
                             
-                            $resultado = mark($argv[1],$argv[2],$argv[3],$conn);   
+                            $accio = $arguments['a'] ?? $arguments['action'];
+                            $resultado = listar($accio,$conn);
+
+                    
                             if ($resultado) {
-                                echo "La tasca '$argv[2]' s'ha marcat com a completada\n";
-                            } 
+                                echo "  RESULTATS TROBATS: \n";
+                                echo "________________________________\n";
+                                echo "\n";
+                                echo "ID - TITOL - DESCRIPCIO - ESTAT\n";
+                    
+                                while ($fila = mysqli_fetch_assoc($resultado)) {
+                                    echo $fila["id"]. " | ";
+                                    echo $fila["titol"]. " | ";
+                                    echo $fila["descripcio"]. " | ";
+                                    echo $fila["completada"]. " | ";
+                                    echo "\n";
+                                }
+                            } else {
+                                echo "No s'ha trobat cap registre en la base de dades \n";
+                            }
+                            
+                        } else {
+                            infoList();
+                        }
+                    break;
+                    case mark:
+                        if ($argc == 7) {
+                            if ((!empty($arguments["t"]) || !empty($arguments["title"])) && ($arguments["d"] == 'done' || $arguments["description"] == 'done')) {
+
+                                $titol = $arguments['t'] ?? $arguments['title'];
+                                $descripcio = $arguments['d'] ?? $arguments['description'];
+                                
+                                $resultado = mark($titol, $descripcio, $conn);
+                                
+                                if ($resultado) {
+                                    echo "Tasca actualitzada de forma correcta\n";
+                                } else {
+                                    echo "Hi ha aparegut un error\n";
+                                }
+                               
+                            } else {
+                                infoMarcar();
+                            }
                         } else {
                             infoMarcar();
                         }
-                    } else {
-                        infoMarcar();
-                    }
-                    break;
-                default:
-                    infoGeneral();
+                        break;
+                    default:
+                        infoGeneral();
             }
         
     }else{
@@ -189,8 +209,5 @@ if (php_sapi_name() == 'cgi') {
 
     mysqli_close($conn);
 
-    
-   
 }
-
 ?>
