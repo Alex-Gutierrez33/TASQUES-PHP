@@ -231,12 +231,20 @@ function delete($titol){
 
     $conn = mysqli_connect($servername, $username, $password,$db);
 
-    $sql = "DELETE FROM events WHERE id = '$titol'";
-    $resultado = mysqli_query($conn,$sql);
+    $sql2 = "SELECT * FROM events WHERE id = '$titol'";
+    $resultado2 = mysqli_query($conn,$sql2);
+
+    $resultado = null;
+
+    if (mysqli_num_rows($resultado2) > 0) {
+        $sql = "DELETE FROM events WHERE id = '$titol'";
+        $resultado = mysqli_query($conn,$sql);      
+    }else{
+        echo "No s'ha trobat la tasca\n";
+
+    }
+
     return $resultado;
-
-
- 
 }
 
 function listar($accio){
@@ -318,8 +326,19 @@ function deleteData($titol){
     $db = new SQLite3($fileSQLITE);
 
     $sql = "DELETE FROM events WHERE id = '$titol'";
+    $sql2 = "SELECT * FROM events WHERE id = '$titol'";
 
-    $result = $db->exec($sql);
+    $result2 = $db->querySingle($sql2);
+
+    if ($result2) {
+        $result = $db->exec($sql);
+        return $result;
+
+    }else{
+        echo "No s'ha torbat la tasca\n";
+    }
+
+   
 }
 
 function listData(){
@@ -460,14 +479,21 @@ if (php_sapi_name() == 'cgi') {
                         if ($accio) {
                             echo "S'ha esborrat correctament la tasca '$titol'\n";
                             $contador++;
+                        }else{
+                            $contador++;
                         }
  
                     }
 
                     if($verify){
-                        echo "S'ha esborrat correctament la tasca '$titol'\n";
-                        deleteData($titol);
+                        $result = deleteData($titol);
                         $contador++;
+
+
+                        if ($result) {
+                            echo "S'ha esborrat correctament la tasca '$titol'\n";
+                        }
+                        
                     }
 
                     if($contador == 0){
