@@ -1,6 +1,8 @@
 <?php
 
 include ("guias_task-manager.php");
+require 'vendor/autoload.php';
+use Symfony\Component\Yaml\Yaml;
 
 function pathCSV(){
     $homedir = getenv('HOME');
@@ -385,13 +387,25 @@ function markTASKSQLITE($titol, $descripcio){
         return $result;
 
     }else{
-        echo "No s'ha torbat la tasca a marcar\n";
+
+       $message = getMessage();
+        echo $message['messages']['marcarDades']['sqlite']['feedbackBad'];
         return $result2;
     }
 
 
     
 
+
+}
+
+function getMessage(){
+    
+    $pathMessage = 'messages.yaml';
+
+    $message = Yaml::parseFile($pathMessage);
+
+    return $message;
 
 }
 
@@ -439,9 +453,13 @@ if (php_sapi_name() == 'cgi') {
                                 $accio = addTaskSQL($titol,$descripcio);
 
                                 if($accio){
-                                    echo "Tasca ingresada de forma correcta \n";
+                                    $message = getMessage();
+                                    echo $message['messages']['insertarDades']['sql']['feedbackOK'];
+                                    //echo "Tasca ingresada de forma correcta \n";
                                 }else{
-                                    echo "No s'ha pogut ingresar la tasca \n";
+                                    //echo "No s'ha pogut ingresar la tasca \n";
+                                    $message = getMessage();
+                                    echo $message['messages']['insertarDades']['sql']['feedbackBad'];
                                 }
 
                             }else{
@@ -449,9 +467,13 @@ if (php_sapi_name() == 'cgi') {
                                 $accio = addTaskSQL($titol,$descripcio);
 
                                 if($accio){
-                                    echo "Tasca ingresada de forma correcta \n";
+                                    //echo "Tasca ingresada de forma correcta \n";
+                                    $message = getMessage();
+                                    echo $message['messages']['insertarDades']['sql']['feedbackOK'];
                                 }else{
-                                    echo "No s'ha pogut ingresar la tasca \n";
+                                    //echo "No s'ha pogut ingresar la tasca \n";
+                                    $message = getMessage();
+                                    echo $message['messages']['insertarDades']['sql']['feedbackOK'];
                                 }
                             }
                             break;
@@ -464,19 +486,24 @@ if (php_sapi_name() == 'cgi') {
 
                             if($verify){
                                 insertData($titol,$descripcio);
-                                echo "S'han insertat les dades de forma correcta \n";
-
+                                //echo "S'han insertat les dades de forma correcta \n";
+                                $message = getMessage();
+                                echo $message['messages']['insertarDades']['sqlite']['feedbackOK'];
                             }else{
                                 createSQLITE();
                                 insertData($titol,$descripcio);
-                                echo "S'ha creat la base de dades SQLITE \n";
+                                //echo "S'ha creat la base de dades SQLITE \n";
+                                $message = getMessage();
+                                echo $message['messages']['insertarDades']['sqlite']['feedbackOK'];
                             }
                             break;
 
                     }
 
                 }else{
-                    infoadd();
+                    //infoadd();
+                    $message = getMessage();
+                    echo $message['messages']['infoadd'];
                 }
                 break;
 
@@ -493,7 +520,10 @@ if (php_sapi_name() == 'cgi') {
 
                     if (file_exists($pathCSV)){
                         deleteTaskCSV($titol);
-                        echo "Tasca esborrada de forma correcta \n";
+                        //echo "Tasca esborrada de forma correcta \n";
+                        $message = getMessage();
+                        echo $message['messages']['borrarDades']['csv']['feedbackOK'];
+
                         $contador++;
                     }
 
@@ -501,7 +531,10 @@ if (php_sapi_name() == 'cgi') {
                         $accio = delete($titol);
 
                         if ($accio) {
-                            echo "S'ha esborrat correctament la tasca '$titol'\n";
+                            //echo "S'ha esborrat correctament la tasca '$titol'\n";
+
+                            $message = getMessage();
+                            echo $message['messages']['borrarDades']['sql']['feedbackOK'];
                             $contador++;
                         }else{
                             $contador++;
@@ -515,8 +548,10 @@ if (php_sapi_name() == 'cgi') {
 
 
                         if ($result) {
-                            echo "S'ha esborrat correctament la tasca '$titol'\n";
-                        
+                            //echo "S'ha esborrat correctament la tasca '$titol'\n";
+                            $message = getMessage();
+                            echo $message['messages']['borrarDades']['sqlite']['feedbackOK'];
+                            
                         }else{
                             $contador++;
                         }
@@ -524,11 +559,16 @@ if (php_sapi_name() == 'cgi') {
                     }
 
                     if($contador == 0){
-                        echo "No es pot executar aquesta acció !! NO EXISTEIX UN MEDI D'EMMAGATZEMATGE \n";
+                        //echo "No es pot executar aquesta acció !! NO EXISTEIX UN MEDI D'EMMAGATZEMATGE \n";
+
+                        $message = getMessage();
+                        echo $message['messages']['errorEmmagatzematge'];
                     }
    
                 }else{
-                    infoDelete();
+                    //infoDelete();
+                    $message = getMessage();
+                    echo $message['messages']['infodelete'];
                 }
             break;
 
@@ -566,7 +606,10 @@ if (php_sapi_name() == 'cgi') {
                         }
                         $contador++;
                     }else{
-                        echo "No s'ha trobat cap dada en la base de dades \n";
+                        $message = getMessage();
+                        echo $message['messages']['listarDades']['sql'];['feedbackOK'];
+
+                        //echo "No s'ha trobat cap dada en la base de dades \n";
                     }
 
                 }
@@ -577,11 +620,16 @@ if (php_sapi_name() == 'cgi') {
                 }
 
                 if($contador == 0){
-                    echo "No es pot executar aquesta acció !! NO EXISTEIX UN MEDI D'EMMAGATZEMATGE \n";
+                    $message = getMessage();
+                    echo $message['messages']['errorEmmagatzematge'];
+
+                    //echo "No es pot executar aquesta acció !! NO EXISTEIX UN MEDI D'EMMAGATZEMATGE \n";
                 }
 
             }else{
-                infoList();
+                //infoList();
+                $message = getMessage();
+                echo $message['messages']['infolist'];
             }
             break;
 
@@ -609,7 +657,9 @@ if (php_sapi_name() == 'cgi') {
                         $resultadoMarcar = mark($titol,$descripcio);
                         
                         if($resultadoMarcar){
-                            echo "S'ha marcat la tasca seleccionada \n";
+                            $message = getMessage();
+                            echo $message['messages']['marcarDades']['sqlite'];['feedbackOK'];
+                            //echo "S'ha marcat la tasca seleccionada \n";
                             $contador++;
                         }else{
                             $contador++;
@@ -620,7 +670,9 @@ if (php_sapi_name() == 'cgi') {
                         $result = markTASKSQLITE($titol,$descripcio);
 
                         if($result){
-                            echo "S'ha marcat la tasca '$titol' \n";
+                            $message = getMessage();
+                            echo $message['messages']['marcarDades']['sqlite']['feedbackOK'];
+                            //echo "S'ha marcat la tasca '$titol' \n";
                             $contador++;
                         }else{
                             $contador++;
@@ -633,19 +685,27 @@ if (php_sapi_name() == 'cgi') {
                     }
 
                     if($contador == 0){
-                        echo "No es pot executar aquesta acció !! NO EXISTEIX UN MEDI D'EMMAGATZEMATGE \n";
+                        $message = getMessage();
+                        echo $message['messages']['errorEmmagatzematge'];
+                        //echo "No es pot executar aquesta acció !! NO EXISTEIX UN MEDI D'EMMAGATZEMATGE \n";
                     }
                 }else{
-                    infoMarcar();
+                    //infoMarcar();
+                    $message = getMessage();
+                    echo $message['messages']['infomarcar'];
                 }
                 break;
 
            
         default:
-            infoGeneral();
+            //infoGeneral();
+            $message = getMessage();
+            echo $message['messages']['infogeneral'];
         }
     }else{
-        infoGeneral();
+        //infoGeneral();
+        $message = getMessage();
+        echo $message['messages']['infogeneral'];
     }
 
 }

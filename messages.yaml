@@ -1,0 +1,112 @@
+messages: 
+  infogeneral: |
+   ***MANUAL D'ÚS***\n";
+    
+    Tasques disponibles:
+    add: Permet afegir una tasca\n
+    list: Mostra per pantalla totes les tasques disponibles
+    mark: Pots modificar una tasca
+    delete: Tens la opcio de eliminar qualsevol tasca
+  
+    "SINTAXIS CORRECTA:
+
+    -a --action           Acció a realitzar
+    -t --title            Titol de la tasca a ingresar
+    -d --description      Descripcio de la tasca
+
+    EXEMPLE: php <document.php -a add --title deures -d <descripcio tasca
+  
+  infoadd: |
+    Per a afegir una tasca, es necessari posar els següents arguments:
+    php <fitxer.php> (-a/--action) <add> (-t/--title)<titol de la tasca> (-d/--description) <contingut>
+
+  infodelete: |
+    Per a esborrar una tasca, es necessari posar els següents arguments: 
+    php <fitxer.php> (-a/--action) <delete> (-t/--title)<id de la tasca>
+
+  infolist: |
+    Per a esborrar una tasca, es necessari posar els següents arguments: 
+    php <fitxer.php> (-a/--action) <list>
+
+  infomarcar: |
+    Per a marcar una tasca com a finalitzada: 
+    Hauras de escriure la seguent estructura: 
+    php <fitxer.php> (-a/--action) <mark> (-t/--title)<id de la tasca> (-d/--description)<done>
+
+  insertarDades:
+    sql:
+      feedbackOK: |
+        Tasca ingresada de forma correcta en la base de dades
+      feedbackBad: |
+        No s'ha pogut ingresar la tasca en la base de dades
+
+    csv:
+      feedbackOK: | 
+        Tasca ingresada de forma correcta en el fitxer csv
+      feedbackBad: |
+        No s'ha pogut ingresar la tasca en el fitxer csv
+
+    sqlite:
+      feedbackOK: | 
+        Tasca ingresada de forma correcta en la base de dades sqlite
+      feedbackBad: |
+        No s'ha pogut ingresar la tasca en la base de dades sqlite
+
+  borrarDades:
+    sql:
+      feedbackOK: |
+        Tasca borrada de forma correcta en la base de dades
+      feedbackBad: |
+        No s'ha pogut borrar el registre en la base de dades
+
+    csv:
+      feedbackOK: | 
+        Tasca esborrada de forma correcta en el fitxer csv
+      feedbackBad: |
+        No s'ha pogut esborrar la tasca en el fitxer csv
+
+    sqlite:
+      feedbackOK: | 
+        Tasca esborrada de forma correcta en la base de dades sqlite
+      feedbackBad: |
+        No s'ha pogut esborrar la tasca de la base de dades sqlite
+
+  marcarDades:
+    sql:
+      feedbackOK: |
+        Tasca marcada en la base de dades
+      feedbackBad: |
+        No s'ha pogut marcar la base de dades
+
+    csv:
+      feedbackOK: | 
+        Tasca marcada de forma correcta en el fitxer csv
+      feedbackBad: |
+        No s'ha pogut marcar la tasca en el fitxer csv
+
+    sqlite:
+      feedbackOK: | 
+        Tasca marcada de forma correcta en la base de dades sqlite
+      feedbackBad: |
+        No s'ha pogut marcar la tasca de la base de dades sqlite
+  listarDades:
+    sql:
+      feedbackBad: |
+        No s'ha pogut marcar la base de dades
+
+    csv:
+      feedbackBad: |
+        No s'ha pogut marcar la tasca en el fitxer csv
+
+    sqlite: 
+      feedbackBad: |
+        No s'ha pogut marcar la tasca de la base de dades sqlite
+  errorEmmagatzematge: |
+    No es pot executar aquesta acció !! NO EXISTEIX UN MEDI D'EMMAGATZEMATGE
+
+
+
+
+
+
+
