@@ -271,9 +271,20 @@ function mark($titol, $descripcio){
     $db = "activitat";
 
     $conn = mysqli_connect($servername, $username, $password,$db);
-    
-    $sql = "UPDATE events SET completada = 1 WHERE ID = '$titol' AND '$descripcio' = 'done'";
-    $resultado = mysqli_query($conn, $sql); 
+
+    $sql2 = "SELECT * FROM events WHERE id = '$titol'";
+    $resultado2 = mysqli_query($conn,$sql2);
+
+    $resultado = null;
+
+    if (mysqli_num_rows($resultado2) > 0) {
+        $sql = "UPDATE events SET completada = 1 WHERE ID = '$titol' AND '$descripcio' = 'done'";
+        $resultado = mysqli_query($conn, $sql);       
+    }else{
+        echo "No s'ha trobat la tasca a marcar\n";
+
+    }
+
     return $resultado;
 
 }
@@ -363,10 +374,23 @@ function markTASKSQLITE($titol, $descripcio){
     $db = new SQLite3($fileSQLITE);
 
     $sql = "UPDATE events SET completada = 1 WHERE ID = '$titol' AND '$descripcio' = 'done'";
+    $sql2 = "SELECT * FROM events WHERE id = '$titol'";
 
     $result = $db->exec($sql);
+    $result2 = $db->querySingle($sql2);
+
+   
+    if ($result2) {
+        $result = $db->exec($sql);
+        return $result;
+
+    }else{
+        echo "No s'ha torbat la tasca a marcar\n";
+        return $result2;
+    }
+
+
     
-    return $result;
 
 
 }
@@ -492,6 +516,9 @@ if (php_sapi_name() == 'cgi') {
 
                         if ($result) {
                             echo "S'ha esborrat correctament la tasca '$titol'\n";
+                        
+                        }else{
+                            $contador++;
                         }
                         
                     }
@@ -584,6 +611,8 @@ if (php_sapi_name() == 'cgi') {
                         if($resultadoMarcar){
                             echo "S'ha marcat la tasca seleccionada \n";
                             $contador++;
+                        }else{
+                            $contador++;
                         }
                     }
 
@@ -594,9 +623,11 @@ if (php_sapi_name() == 'cgi') {
                             echo "S'ha marcat la tasca '$titol' \n";
                             $contador++;
                         }else{
-                            echo "NO S'ha marcat la tasca '$titol' \n";
+                            $contador++;
 
                         }
+
+                
 
 
                     }
