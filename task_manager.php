@@ -210,13 +210,12 @@ function createDatabase(){
 
 function addTaskSQL($titol, $descripcio) {
 
-    $array = getParameSQL();
-
-    $servername = $array['database']['host'];
-    $username = $array['database']['user'];
-    $password = $array['database']['password'];
-    $db = $array['database']['name'];
-
+    $servername = "localhost";
+    $username = "alex";
+    $password = "Alex2310";
+    $db = 'activitat';
+        
+        
     $conn = mysqli_connect($servername, $username, $password,$db);
 
     $sql = "INSERT INTO events (titol, descripcio) VALUES ('$titol', '$descripcio')";
@@ -228,12 +227,12 @@ function addTaskSQL($titol, $descripcio) {
 
 function delete($titol){
 
-    $array = getParameSQL();
+    
 
-    $servername = $array['database']['host'];
-    $username = $array['database']['user'];
-    $password = $array['database']['password'];
-    $db = $array['database']['name'];
+    $servername = "localhost";
+    $username = "alex";
+    $password = "Alex2310";
+    $db = "activitat";
 
     $conn = mysqli_connect($servername, $username, $password,$db);
 
@@ -255,13 +254,10 @@ function delete($titol){
 
 function listar(){
 
-    $array = getParameSQL();
-
-    $servername = $array['database']['host'];
-    $username = $array['database']['user'];
-    $password = $array['database']['password'];
-    $db = $array['database']['name'];
-
+    $servername = "localhost";
+    $username = "alex";
+    $password = "Alex2310";
+    $db = "activitat";
     $conn = mysqli_connect($servername, $username, $password,$db);
 
     $sql = "SELECT * FROM events";
@@ -273,12 +269,10 @@ function listar(){
 
 function mark($titol, $descripcio){
 
-    $array = getParameSQL();
-
-    $servername = $array['database']['host'];
-    $username = $array['database']['user'];
-    $password = $array['database']['password'];
-    $db = $array['database']['name'];
+    $servername = "localhost";
+    $username = "alex";
+    $password = "Alex2310";
+    $db = "activitat";
 
     $conn = mysqli_connect($servername, $username, $password,$db);
 
@@ -400,10 +394,6 @@ function markTASKSQLITE($titol, $descripcio){
         echo $message['messages']['marcarDades']['sqlite']['feedbackBad'];
         return $result2;
     }
-
-
-    
-
 
 }
 
@@ -546,6 +536,8 @@ if (php_sapi_name() == 'cgi') {
                         createYAML($pathCFGyaml);
                         $respuesta = verificarArchivos();
                         putMethod($respuesta);
+                        $respuesta = getmethod();
+
 
                         if ($respuesta == 'SQL') {
                             askConfigSQL();
@@ -803,7 +795,8 @@ if (php_sapi_name() == 'cgi') {
     
                                 }
                                 break;
-                                
+                            
+                            
                         }
                     }else{
                         $message = getMessage();
@@ -812,6 +805,7 @@ if (php_sapi_name() == 'cgi') {
 
                    
                 }else{
+                    //infoMarcar();
                     $message = getMessage();
                     echo $message['messages']['infomarcar'];
                 }
