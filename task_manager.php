@@ -242,6 +242,7 @@ function createDatabase(){
 }
 
 
+
 function addTaskSQL($titol, $descripcio) {
 
     $array = getParameSQL();
