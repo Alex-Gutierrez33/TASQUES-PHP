@@ -185,11 +185,6 @@ function verifyExistDatabase(){
     }
     
     
-    
-   
-    
-    
-    
     }
 
 function createDatabase(){
@@ -233,8 +228,7 @@ function createDatabase(){
         }
     
     } catch (mysqli_sql_exception $e) {
-        echo "\n";
-        echo "Error, no s'ha trobat la base de dades \n";
+       
     }
         
    
@@ -244,6 +238,7 @@ function createDatabase(){
 
 
 function addTaskSQL($titol, $descripcio) {
+
 
     $array = getParameSQL();
 
@@ -264,7 +259,7 @@ function addTaskSQL($titol, $descripcio) {
         $resultado = mysqli_query($conn, $sql);
         return $resultado;
     } catch (mysqli_sql_exception $e) {
-
+        echo "No s'ha pogut insertar les dades";
     }
     
 
@@ -388,19 +383,26 @@ function mark($titol, $descripcio){
 function showTaskCSV(){
 
     $pathCSV = pathCSV();
-
-
     $file = fopen($pathCSV, 'r');
 
+
+   
+    echo "Error no s'ha pogut obrir el arxiu\n";
+  
     echo "TASQUES DISPONIBLES: " . "\n";
     echo "=====================" . "\n";
-
+    
     while(($row = fgetcsv($file)) != false){
         echo "id:" . $row[0] . " ". "titol:" . $row[1] . " " . "descripcio:" . $row[2]." ". "completada:" . $row[3]."\n";
-    
+        
     }
-
+    
     fclose($file);
+    
+
+    
+
+   
 
 }
 
@@ -653,7 +655,8 @@ if (php_sapi_name() == 'cgi') {
                             $descripcio = $arguments['d'] ?? $arguments['description'];
 
                             if($result != TRUE){
-
+                                
+                                askConfigSQL();
                                 createDatabase();  
                                 $accio = addTaskSQL($titol,$descripcio);
 
@@ -669,6 +672,7 @@ if (php_sapi_name() == 'cgi') {
 
                             }else{
                                 
+                                askConfigSQL();
                                 $accio = addTaskSQL($titol,$descripcio);
 
                                 if($accio){
