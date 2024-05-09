@@ -8,7 +8,7 @@ messages:
     mark: Pots modificar una tasca
     delete: Tens la opcio de eliminar qualsevol tasca
   
-    "SINTAXIS CORRECTA:
+    SINTAXIS CORRECTA:
 
     -a --action           Acció a realitzar
     -t --title            Titol de la tasca a ingresar

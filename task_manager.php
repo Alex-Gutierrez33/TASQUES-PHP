@@ -210,10 +210,12 @@ function createDatabase(){
 
 function addTaskSQL($titol, $descripcio) {
 
-    $servername = "localhost";
-    $username = "alex";
-    $password = "Alex2310";
-    $db = "activitat";
+    $array = getParameSQL();
+
+    $servername = $array['database']['host'];
+    $username = $array['database']['user'];
+    $password = $array['database']['password'];
+    $db = $array['database']['name'];
 
     $conn = mysqli_connect($servername, $username, $password,$db);
 
@@ -226,10 +228,12 @@ function addTaskSQL($titol, $descripcio) {
 
 function delete($titol){
 
-    $servername = "localhost";
-    $username = "alex";
-    $password = "Alex2310";
-    $db = "activitat";
+    $array = getParameSQL();
+
+    $servername = $array['database']['host'];
+    $username = $array['database']['user'];
+    $password = $array['database']['password'];
+    $db = $array['database']['name'];
 
     $conn = mysqli_connect($servername, $username, $password,$db);
 
@@ -249,12 +253,14 @@ function delete($titol){
     return $resultado;
 }
 
-function listar($accio){
+function listar(){
 
-    $servername = "localhost";
-    $username = "alex";
-    $password = "Alex2310";
-    $db = "activitat";
+    $array = getParameSQL();
+
+    $servername = $array['database']['host'];
+    $username = $array['database']['user'];
+    $password = $array['database']['password'];
+    $db = $array['database']['name'];
 
     $conn = mysqli_connect($servername, $username, $password,$db);
 
@@ -267,10 +273,12 @@ function listar($accio){
 
 function mark($titol, $descripcio){
 
-    $servername = "localhost";
-    $username = "alex";
-    $password = "Alex2310";
-    $db = "activitat";
+    $array = getParameSQL();
+
+    $servername = $array['database']['host'];
+    $username = $array['database']['user'];
+    $password = $array['database']['password'];
+    $db = $array['database']['name'];
 
     $conn = mysqli_connect($servername, $username, $password,$db);
 
@@ -409,6 +417,109 @@ function getMessage(){
 
 }
 
+function pathCFGyaml(){
+    $homedir = getenv('HOME');
+    $pathCFG = $homedir. DIRECTORY_SEPARATOR.'.config'.DIRECTORY_SEPARATOR.'task-manager-config.yaml';
+    return $pathCFG;
+
+}
+
+function createYAML($ruta) {
+
+    $archivo = fopen($ruta, 'w');        
+
+    $configYAML = array(
+        'method' => '',
+        'database' => array(
+            'host' => '',
+            'name' => '',
+            'user' => '',
+            'password' => '',
+        )
+    );
+
+    $contenidoYAML = yaml_emit($configYAML);
+
+    file_put_contents($ruta, $contenidoYAML);
+ 
+}
+
+function getmethod(){
+    $pathCFG = pathCFGyaml();
+
+    $message = Yaml::parseFile($pathCFG);
+
+    return $message['method'];
+}
+
+
+function putMethod($respuesta){
+
+    $pathCFG = pathCFGyaml();
+
+    $content = file_get_contents($pathCFG);
+    $array = Yaml::parse($content);
+
+    $array['method'] = $respuesta;
+
+    $contenidoYAML = yaml_emit($array);
+
+    file_put_contents($pathCFG, $contenidoYAML);
+
+
+}
+
+function askConfigSQL(){
+
+    $pathCFG = pathCFGyaml();
+
+    do {
+        echo "Indica la ip on tens al base de dades: ";
+        $host = trim(fgets(STDIN));            
+    } while (empty($host));
+
+    do {
+        echo "Indica el nom de la base de dades: ";
+        $dbname = trim(fgets(STDIN));            
+    } while (empty($dbname));
+        
+
+    do {
+        echo "Indica el nom del usuari:  ";
+        $username = trim(fgets(STDIN));            
+    } while (empty($username));
+        
+    do {
+        echo "Indica la contrasenya del usuari: ";
+        $password = trim(fgets(STDIN));            
+    } while (empty($password));
+
+
+    $content = file_get_contents($pathCFG);
+
+    $array = Yaml::parse($content);
+
+    $array['database']['host'] = $host;
+    $array['database']['name'] = $dbname;
+    $array['database']['user'] = $username;
+    $array['database']['password'] = $password;
+
+    $contenidoYAML = yaml_emit($array);
+
+    file_put_contents($pathCFG, $contenidoYAML);
+
+
+    }
+
+    function getParameSQL(){
+        $pathCFG = pathCFGyaml();
+    
+        $message = Yaml::parseFile($pathCFG);
+    
+       return $message;
+    }
+
+
 
 
 const add = 'add';
@@ -427,7 +538,21 @@ if (php_sapi_name() == 'cgi') {
             case add:
                 if(($argc == 7 && ((!empty($arguments["t"]) && trim($arguments["t"]) != "") || (!empty($arguments["title"]) && trim($arguments["title"]) != "")) && ((!empty($arguments["d"])&& trim($arguments["d"]) != "") || (!empty($arguments["description"]) && trim($arguments["description"]) != "")))){
                     
-                    $respuesta = verificarArchivos();
+                    $pathCFGyaml = pathCFGyaml();
+
+                    if (file_exists($pathCFGyaml)) {
+                        $respuesta = getmethod();
+                    }else{
+                        createYAML($pathCFGyaml);
+                        $respuesta = verificarArchivos();
+                        putMethod($respuesta);
+
+                        if ($respuesta == 'SQL') {
+                            askConfigSQL();
+                        }
+
+                    }
+
 
                     switch($respuesta){
                         case 'CSV':
@@ -511,59 +636,57 @@ if (php_sapi_name() == 'cgi') {
                 $contador = 0;
                 if(($argc == 5 && ((!empty($arguments["t"]) && trim($arguments["t"]) != "") || (!empty($arguments["title"]) && trim($arguments["title"]) != "")) )){
         
-                    $pathCSV = pathCSV();
-                    $result = verifyExistDatabase();
-                    $verify = verifiySQLITE();
+                    //$pathCSV = pathCSV();
+                    //$result = verifyExistDatabase();
+                    //$verify = verifiySQLITE();
 
+                    $pathCFGyaml = pathCFGyaml();
 
-                    $titol = $arguments['t'] ?? $arguments['title'];
+                    if (file_exists($pathCFGyaml)) {
+                        $method = getmethod();
 
-                    if (file_exists($pathCSV)){
-                        deleteTaskCSV($titol);
-                        //echo "Tasca esborrada de forma correcta \n";
-                        $message = getMessage();
-                        echo $message['messages']['borrarDades']['csv']['feedbackOK'];
-
-                        $contador++;
-                    }
-
-                    if($result){
-                        $accio = delete($titol);
-
-                        if ($accio) {
-                            //echo "S'ha esborrat correctament la tasca '$titol'\n";
-
-                            $message = getMessage();
-                            echo $message['messages']['borrarDades']['sql']['feedbackOK'];
-                            $contador++;
-                        }else{
-                            $contador++;
-                        }
- 
-                    }
-
-                    if($verify){
-                        $result = deleteData($titol);
-                        $contador++;
-
-
-                        if ($result) {
-                            //echo "S'ha esborrat correctament la tasca '$titol'\n";
-                            $message = getMessage();
-                            echo $message['messages']['borrarDades']['sqlite']['feedbackOK'];
-                            
-                        }else{
-                            $contador++;
-                        }
-                        
-                    }
-
-                    if($contador == 0){
-                        //echo "No es pot executar aquesta acció !! NO EXISTEIX UN MEDI D'EMMAGATZEMATGE \n";
-
+                        switch ($method) {
+                            case 'CSV':
+                                $titol = $arguments['t'] ?? $arguments['title'];
+                                deleteTaskCSV($titol);
+                                $message = getMessage();
+                                echo $message['messages']['borrarDades']['csv']['feedbackOK'];
+                                break;
+    
+                            case 'SQL':
+                                $titol = $arguments['t'] ?? $arguments['title'];
+                                $accio = delete($titol);
+                                if ($accio) {
+                                    //echo "S'ha esborrat correctament la tasca '$titol'\n";
+        
+                                    $message = getMessage();
+                                    echo $message['messages']['borrarDades']['sql']['feedbackOK'];
+                                    $contador++;
+                                }else{
+                                    $contador++;
+                                }
+                                break;
+    
+                            case 'SQLITE':
+                                $result = deleteData($titol);
+                                $contador++;
+        
+        
+                                if ($result) {
+                                    //echo "S'ha esborrat correctament la tasca '$titol'\n";
+                                    $message = getMessage();
+                                    echo $message['messages']['borrarDades']['sqlite']['feedbackOK'];
+                                    
+                                }else{
+                                    $contador++;
+                                }
+                                break;      
+                        } 
+                    }else{
                         $message = getMessage();
                         echo $message['messages']['errorEmmagatzematge'];
                     }
+                        
    
                 }else{
                     //infoDelete();
@@ -576,55 +699,54 @@ if (php_sapi_name() == 'cgi') {
             $contador = 0;
             if(($argc == 3) && ((!empty($arguments['a']) && trim($arguments['a']) != '') || (!empty($arguments['action']) && trim($arguments['action']) != ''))) {
                 
-                $pathCSV = pathCSV();
-                $result = verifyExistDatabase();
-                $verify = verifiySQLITE();
+               
+                $pathCFGyaml = pathCFGyaml();
 
+                if (file_exists($pathCFGyaml)) {
+                    $method = getmethod();
 
-
-                if (file_exists($pathCSV)){
-                    showTaskCSV();
-                    $contador++;
-                }
-
-                if($result){
-                    $accio = $arguments['a'] ?? $arguments['action'];
-                    $lista = listar($accio);
-
-                    if($lista){
-                        echo "  RESULTATS TROBATS: \n";
-                        echo "____________________________\n";
-                        echo "\n";
-                        echo "ID - TITOL - DESCRIPCIO - ESTAT\n";
-
-                        while ($fila = mysqli_fetch_assoc($lista)) {
-                            echo $fila["id"]. " | ";
-                            echo $fila["titol"]. " | ";
-                            echo $fila["descripcio"]. " | ";
-                            echo $fila["completada"]. " | ";
-                            echo "\n";
-                        }
-                        $contador++;
-                    }else{
-                        $message = getMessage();
-                        echo $message['messages']['listarDades']['sql'];['feedbackOK'];
-
-                        //echo "No s'ha trobat cap dada en la base de dades \n";
+                    switch ($method) {
+                        case 'CSV':
+                            showTaskCSV();
+                            $contador++;
+                            break;
+    
+                        case 'SQL':
+                            $lista = listar();
+        
+                            if($lista){
+                                echo "  RESULTATS TROBATS: \n";
+                                echo "____________________________\n";
+                                echo "\n";
+                                echo "ID - TITOL - DESCRIPCIO - ESTAT\n";
+        
+                                while ($fila = mysqli_fetch_assoc($lista)) {
+                                    echo $fila["id"]. " | ";
+                                    echo $fila["titol"]. " | ";
+                                    echo $fila["descripcio"]. " | ";
+                                    echo $fila["completada"]. " | ";
+                                    echo "\n";
+                                }
+                                $contador++;
+                            }else{
+                                $message = getMessage();
+                                echo $message['messages']['listarDades']['sql']['feedbackOK'];
+        
+                                //echo "No s'ha trobat cap dada en la base de dades \n";
+                            }
+                            break;
+    
+                        case 'SQLITE':
+                            $contador++;
+                            listData();
+                            break;
                     }
 
-                }
-
-                if ($verify) {
-                    $contador++;
-                    listData();                
-                }
-
-                if($contador == 0){
+                }else{
                     $message = getMessage();
                     echo $message['messages']['errorEmmagatzematge'];
-
-                    //echo "No es pot executar aquesta acció !! NO EXISTEIX UN MEDI D'EMMAGATZEMATGE \n";
                 }
+                 
 
             }else{
                 //infoList();
@@ -637,60 +759,59 @@ if (php_sapi_name() == 'cgi') {
             case mark:
                 $contador = 0;
     
-                if(($argc == 7 && ((!empty($arguments["t"]) && trim($arguments["t"]) != "") || (!empty($arguments["title"]) && trim($arguments["title"]) != "")) && ((!empty($arguments["d"])&& trim($arguments["d"]) != "") || (!empty($arguments["description"]) && trim($arguments["description"]) == "done")))){
+                if(($argc == 7 && ((!empty($arguments["t"]) && trim($arguments["t"]) != "") || (!empty($arguments["title"]) && trim($arguments["title"]) != "")) && ((!empty($arguments["d"])&& trim($arguments["d"]) == "done") || (!empty($arguments["description"]) && trim($arguments["description"]) == "done")))){
                     
-                    $pathCSV = pathCSV();
-                    $result = verifyExistDatabase();
-                    $verify = verifiySQLITE();
-
 
                     $titol = $arguments['t'] ?? $arguments['title'];
                     $descripcio = $arguments['d'] ?? $arguments['description'];
+                    
 
+                    $pathCFGyaml = pathCFGyaml();
 
-                    if (file_exists($pathCSV)){
-                        markCSV($titol);
-                        $contador++;
-                    }
+                    if (file_exists($pathCFGyaml)) {
+                        $method = getmethod();
 
-                    if($result){
-                        $resultadoMarcar = mark($titol,$descripcio);
-                        
-                        if($resultadoMarcar){
-                            $message = getMessage();
-                            echo $message['messages']['marcarDades']['sqlite'];['feedbackOK'];
-                            //echo "S'ha marcat la tasca seleccionada \n";
-                            $contador++;
-                        }else{
-                            $contador++;
+                        switch ($method) {
+                            case 'CSV':
+                                markCSV($titol);
+                                $contador++;
+                                break;
+    
+                            case 'SQL':
+                                $resultadoMarcar = mark($titol,$descripcio);
+                            
+                                if($resultadoMarcar){
+                                    $message = getMessage();
+                                    echo $message['messages']['marcarDades']['sqlite'];['feedbackOK'];
+                                    //echo "S'ha marcat la tasca seleccionada \n";
+                                    $contador++;
+                                }else{
+                                    $contador++;
+                                }
+                                break;
+    
+                            case 'SQLITE':
+                                $result = markTASKSQLITE($titol,$descripcio);
+    
+                                if($result){
+                                    $message = getMessage();
+                                    echo $message['messages']['marcarDades']['sqlite']['feedbackOK'];
+                                    //echo "S'ha marcat la tasca '$titol' \n";
+                                    $contador++;
+                                }else{
+                                    $contador++;
+    
+                                }
+                                break;
+                                
                         }
-                    }
-
-                    if ($verify) {
-                        $result = markTASKSQLITE($titol,$descripcio);
-
-                        if($result){
-                            $message = getMessage();
-                            echo $message['messages']['marcarDades']['sqlite']['feedbackOK'];
-                            //echo "S'ha marcat la tasca '$titol' \n";
-                            $contador++;
-                        }else{
-                            $contador++;
-
-                        }
-
-                
-
-
-                    }
-
-                    if($contador == 0){
+                    }else{
                         $message = getMessage();
                         echo $message['messages']['errorEmmagatzematge'];
-                        //echo "No es pot executar aquesta acció !! NO EXISTEIX UN MEDI D'EMMAGATZEMATGE \n";
                     }
+
+                   
                 }else{
-                    //infoMarcar();
                     $message = getMessage();
                     echo $message['messages']['infomarcar'];
                 }
