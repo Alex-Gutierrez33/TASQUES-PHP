@@ -149,147 +149,237 @@ function markCSV($titol){
 
 
 function verifyExistDatabase(){
-    
-    $servername = "localhost";
-    $username = "alex";
-    $password = "Alex2310";
-    
-    $conn = mysqli_connect($servername, $username, $password);
-    
-    
-    $databaseName = "activitat";
-    
-    
-    $sql = "SHOW DATABASES LIKE '$databaseName'";
-    $resultado = mysqli_query($conn, $sql);
-    
-    if ($resultado && mysqli_num_rows($resultado) > 0) {
-        return TRUE;
-    } else {
+
+    $array = getParameSQL();
+
+    $servername = $array['database']['host'];
+    $username = $array['database']['user'];
+    $password = $array['database']['password'];
+    $db = $array['database']['name'];
+
+    if ($servername == "" && $username == "" && $password == "" && $db == "") {
         return FALSE;
     }
+    
+    
+    //$servername = "localhost";
+    //$username = "alex";
+    //$password = "Alex2310";
+    try {
+        $conn = mysqli_connect($servername, $username, $password);
 
+        $databaseName = $db;
+    
+    
+        $sql = "SHOW DATABASES LIKE '$databaseName'";
+        $resultado = mysqli_query($conn, $sql);
+
+        if ($resultado && mysqli_num_rows($resultado) > 0) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    
+    
+    } catch (mysqli_sql_exception $e) {
+    }
+    
+    
+    
+   
+    
+    
     
     }
 
 function createDatabase(){
 
-    $servername = "localhost";
-    $username = "alex";
-    $password = "Alex2310";
-        
-    $conn = mysqli_connect($servername, $username, $password);
-        
-    if($conn){
-        
-        $sql = "CREATE DATABASE activitat";
-        $resultado = mysqli_query($conn, $sql);
-    }
-        
-        
-    mysqli_select_db($conn, "activitat");
-        
-    $sqlCreateTable = "CREATE TABLE events(
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        titol VARCHAR(50) NOT NULL,
-        descripcio VARCHAR(100) NOT NULL,
-        completada BOOLEAN DEFAULT FALSE
-    );";
-        
-    $resultadoCreateTable = mysqli_query($conn, $sqlCreateTable);
-        
-    if($resultadoCreateTable){
-        echo "S'ha creat la base de dades \n";
-    }else{
-        echo "Ha aparegut un error \n";
-    }
+    $array = getParameSQL();
 
+    $servername = $array['database']['host'];
+    $username = $array['database']['user'];
+    $password = $array['database']['password'];
+    $db = $array['database']['name'];
+
+    //$servername = "localhost";
+    //$username = "alex";
+    //$password = "Alex2310";
+
+    try {
+        $conn = mysqli_connect($servername, $username, $password);
+        
+        if($conn){
+            
+            $sql = "CREATE DATABASE $db";
+            $resultado = mysqli_query($conn, $sql);
+        }
+            
+            
+        mysqli_select_db($conn, $db);
+            
+        $sqlCreateTable = "CREATE TABLE events(
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            titol VARCHAR(50) NOT NULL,
+            descripcio VARCHAR(100) NOT NULL,
+            completada BOOLEAN DEFAULT FALSE
+        );";
+            
+        $resultadoCreateTable = mysqli_query($conn, $sqlCreateTable);
+            
+        if($resultadoCreateTable){
+            echo "S'ha creat la base de dades \n";
+        }else{
+            echo "Ha aparegut un error \n";
+        }
+    
+    } catch (mysqli_sql_exception $e) {
+        echo "\n";
+        echo "Error, no s'ha trobat la base de dades \n";
+    }
+        
+   
         
 }
 
 
 function addTaskSQL($titol, $descripcio) {
 
-    $servername = "localhost";
-    $username = "alex";
-    $password = "Alex2310";
-    $db = 'activitat';
-        
-        
-    $conn = mysqli_connect($servername, $username, $password,$db);
+    $array = getParameSQL();
 
-    $sql = "INSERT INTO events (titol, descripcio) VALUES ('$titol', '$descripcio')";
-    $resultado = mysqli_query($conn, $sql);
-    return $resultado;
+    $servername = $array['database']['host'];
+    $username = $array['database']['user'];
+    $password = $array['database']['password'];
+    $db = $array['database']['name'];
+
+    //$servername = "localhost";
+    //$username = "alex";
+    //$password = "Alex2310";
+    //$db = 'activitat';
+        
+    try {
+        $conn = mysqli_connect($servername, $username, $password,$db);
+
+        $sql = "INSERT INTO events (titol, descripcio) VALUES ('$titol', '$descripcio')";
+        $resultado = mysqli_query($conn, $sql);
+        return $resultado;
+    } catch (mysqli_sql_exception $e) {
+
+    }
+    
 
 
 }
 
 function delete($titol){
 
+
     
 
-    $servername = "localhost";
-    $username = "alex";
-    $password = "Alex2310";
-    $db = "activitat";
+   $array = getParameSQL();
 
-    $conn = mysqli_connect($servername, $username, $password,$db);
+    $servername = $array['database']['host'];
+    $username = $array['database']['user'];
+    $password = $array['database']['password'];
+    $db = $array['database']['name'];
 
-    $sql2 = "SELECT * FROM events WHERE id = '$titol'";
-    $resultado2 = mysqli_query($conn,$sql2);
+    //$servername = "localhost";
+    //$username = "alex";
+    //$password = "Alex2310";
+    //$db = 'activitat';
+        
+    try {
+        $conn = mysqli_connect($servername, $username, $password,$db);
 
-    $resultado = null;
+        $sql2 = "SELECT * FROM events WHERE id = '$titol'";
+        $resultado2 = mysqli_query($conn,$sql2);
 
-    if (mysqli_num_rows($resultado2) > 0) {
-        $sql = "DELETE FROM events WHERE id = '$titol'";
-        $resultado = mysqli_query($conn,$sql);      
-    }else{
-        echo "No s'ha trobat la tasca\n";
+        $resultado = null;
+
+        if (mysqli_num_rows($resultado2) > 0) {
+            $sql = "DELETE FROM events WHERE id = '$titol'";
+            $resultado = mysqli_query($conn,$sql);      
+        }else{
+            echo "No s'ha trobat la tasca\n";
+
+        }
+
+        return $resultado;
+
+    } catch (mysqli_sql_exception $e) {
 
     }
 
-    return $resultado;
+
+    
 }
 
 function listar(){
 
-    $servername = "localhost";
-    $username = "alex";
-    $password = "Alex2310";
-    $db = "activitat";
-    $conn = mysqli_connect($servername, $username, $password,$db);
+    $array = getParameSQL();
 
-    $sql = "SELECT * FROM events";
-    $resultado = mysqli_query($conn,$sql);
-    return $resultado;
+    $servername = $array['database']['host'];
+    $username = $array['database']['user'];
+    $password = $array['database']['password'];
+    $db = $array['database']['name'];
+
+    //$servername = "localhost";
+    //$username = "alex";
+    //$password = "Alex2310";
+    //$db = 'activitat';
+
+    try {
+        $conn = mysqli_connect($servername, $username, $password,$db);
+
+        $sql = "SELECT * FROM events";
+        $resultado = mysqli_query($conn,$sql);
+        return $resultado;
+    } catch (mysqli_sql_exception $e) {
+
+    }
+        
+   
 
 
 }
 
 function mark($titol, $descripcio){
 
-    $servername = "localhost";
-    $username = "alex";
-    $password = "Alex2310";
-    $db = "activitat";
+    $array = getParameSQL();
 
-    $conn = mysqli_connect($servername, $username, $password,$db);
+    $servername = $array['database']['host'];
+    $username = $array['database']['user'];
+    $password = $array['database']['password'];
+    $db = $array['database']['name'];
 
-    $sql2 = "SELECT * FROM events WHERE id = '$titol'";
-    $resultado2 = mysqli_query($conn,$sql2);
+    //$servername = "localhost";
+    //$username = "alex";
+    //$password = "Alex2310";
+    //$db = 'activitat';
+        
 
-    $resultado = null;
+    try {
+        $conn = mysqli_connect($servername, $username, $password,$db);
 
-    if (mysqli_num_rows($resultado2) > 0) {
-        $sql = "UPDATE events SET completada = 1 WHERE ID = '$titol' AND '$descripcio' = 'done'";
-        $resultado = mysqli_query($conn, $sql);       
-    }else{
-        echo "No s'ha trobat la tasca a marcar\n";
+        $sql2 = "SELECT * FROM events WHERE id = '$titol'";
+        $resultado2 = mysqli_query($conn,$sql2);
+
+        $resultado = null;
+
+        if (mysqli_num_rows($resultado2) > 0) {
+            $sql = "UPDATE events SET completada = 1 WHERE ID = '$titol' AND '$descripcio' = 'done'";
+            $resultado = mysqli_query($conn, $sql);       
+        }else{
+            echo "No s'ha trobat la tasca a marcar\n";
+
+        }
+
+        return $resultado;
+
+    } catch (mysqli_sql_exception $e) {
 
     }
 
-    return $resultado;
+    
 
 }
 
@@ -498,7 +588,6 @@ function askConfigSQL(){
 
     file_put_contents($pathCFG, $contenidoYAML);
 
-
     }
 
     function getParameSQL(){
@@ -508,8 +597,6 @@ function askConfigSQL(){
     
        return $message;
     }
-
-
 
 
 const add = 'add';
