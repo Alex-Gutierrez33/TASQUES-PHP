@@ -33,12 +33,21 @@ messages:
     Hauras de escriure la seguent estructura: 
     php <fitxer.php> (-a/--action) <mark> (-t/--title)<id de la tasca> (-d/--description)<done>
 
+  sql: 
+    createDatabase:
+      feedbackOK: |
+        S'ha pogut crear la base de dades
+      feedbackBad: |
+        Ha aparegut algun error a l'hora de crear la base de dades
+    
+
   insertarDades:
     sql:
       feedbackOK: |
         Tasca ingresada de forma correcta en la base de dades
       feedbackBad: |
         No s'ha pogut ingresar la tasca en la base de dades
+      
 
     csv:
       feedbackOK: | 
@@ -51,6 +60,9 @@ messages:
         Tasca ingresada de forma correcta en la base de dades sqlite
       feedbackBad: |
         No s'ha pogut ingresar la tasca en la base de dades sqlite
+      
+      tasknotFound: |
+        No s'ha torbat la tasca
 
   borrarDades:
     sql:
@@ -58,6 +70,8 @@ messages:
         Tasca borrada de forma correcta en la base de dades
       feedbackBad: |
         No s'ha pogut borrar el registre en la base de dades
+      tasknotFound: |
+        No s'ha torbat la tasca a eliminar
 
     csv:
       feedbackOK: | 
@@ -70,6 +84,8 @@ messages:
         Tasca esborrada de forma correcta en la base de dades sqlite
       feedbackBad: |
         No s'ha pogut esborrar la tasca de la base de dades sqlite
+      tasknotFound: |
+        No s'ha torbat la tasca
 
   marcarDades:
     sql:
@@ -77,6 +93,8 @@ messages:
         Tasca marcada en la base de dades
       feedbackBad: |
         No s'ha pogut marcar la base de dades
+      tasknotFound: |
+        No s'ha trobat la tasca a marcar
 
     csv:
       feedbackOK: | 

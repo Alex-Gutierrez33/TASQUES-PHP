@@ -91,7 +91,8 @@ function createCSV($tasca){
 
     fclose($file);
 
-    echo "Tasca ingresada de forma correcta". "\n";   
+    $message = getMessage();
+    echo $message['messages']['insertarDades']['csv']['feedbackOK'];
 }
 
 function deleteTaskCSV($titol){
@@ -144,7 +145,8 @@ function markCSV($titol){
 
     fclose($file);
 
-    echo "L'estat de la tasca s'ha modificat \n";
+    $message = getMessage();
+    echo $message['messages']['marcarDades']['csv']['feedbackOK'];
 }
 
 
@@ -161,10 +163,7 @@ function verifyExistDatabase(){
         return FALSE;
     }
     
-    
-    //$servername = "localhost";
-    //$username = "alex";
-    //$password = "Alex2310";
+
     try {
         $conn = mysqli_connect($servername, $username, $password);
 
@@ -196,9 +195,6 @@ function createDatabase(){
     $password = $array['database']['password'];
     $db = $array['database']['name'];
 
-    //$servername = "localhost";
-    //$username = "alex";
-    //$password = "Alex2310";
 
     try {
         $conn = mysqli_connect($servername, $username, $password);
@@ -223,8 +219,11 @@ function createDatabase(){
             
         if($resultadoCreateTable){
             echo "S'ha creat la base de dades \n";
+            $message = getMessage();
+            echo $message['messages']['sql']['createDatabase']['feedbackOK'];
         }else{
-            echo "Ha aparegut un error \n";
+            $message = getMessage();
+            echo $message['messages']['sql']['createDatabase']['feedbackBad'];
         }
     
     } catch (mysqli_sql_exception $e) {
@@ -247,10 +246,7 @@ function addTaskSQL($titol, $descripcio) {
     $password = $array['database']['password'];
     $db = $array['database']['name'];
 
-    //$servername = "localhost";
-    //$username = "alex";
-    //$password = "Alex2310";
-    //$db = 'activitat';
+
         
     try {
         $conn = mysqli_connect($servername, $username, $password,$db);
@@ -259,7 +255,9 @@ function addTaskSQL($titol, $descripcio) {
         $resultado = mysqli_query($conn, $sql);
         return $resultado;
     } catch (mysqli_sql_exception $e) {
-        echo "No s'ha pogut insertar les dades";
+        $message = getMessage();
+        echo $message['messages']['insertarDades']['sql']['feedbackBad'];
+
     }
     
 
@@ -278,10 +276,7 @@ function delete($titol){
     $password = $array['database']['password'];
     $db = $array['database']['name'];
 
-    //$servername = "localhost";
-    //$username = "alex";
-    //$password = "Alex2310";
-    //$db = 'activitat';
+
         
     try {
         $conn = mysqli_connect($servername, $username, $password,$db);
@@ -295,7 +290,8 @@ function delete($titol){
             $sql = "DELETE FROM events WHERE id = '$titol'";
             $resultado = mysqli_query($conn,$sql);      
         }else{
-            echo "No s'ha trobat la tasca\n";
+            $message = getMessage();
+            echo $message['messages']['borrarDades']['sql']['tasknotFound'];
 
         }
 
@@ -317,11 +313,6 @@ function listar(){
     $username = $array['database']['user'];
     $password = $array['database']['password'];
     $db = $array['database']['name'];
-
-    //$servername = "localhost";
-    //$username = "alex";
-    //$password = "Alex2310";
-    //$db = 'activitat';
 
     try {
         $conn = mysqli_connect($servername, $username, $password,$db);
@@ -347,10 +338,7 @@ function mark($titol, $descripcio){
     $password = $array['database']['password'];
     $db = $array['database']['name'];
 
-    //$servername = "localhost";
-    //$username = "alex";
-    //$password = "Alex2310";
-    //$db = 'activitat';
+  
         
 
     try {
@@ -366,6 +354,8 @@ function mark($titol, $descripcio){
             $resultado = mysqli_query($conn, $sql);       
         }else{
             echo "No s'ha trobat la tasca a marcar\n";
+            $message = getMessage();
+            echo $message['messages']['marcarDades']['sql']['tasknotFound'];
 
         }
 
@@ -443,7 +433,8 @@ function deleteData($titol){
         return $result;
 
     }else{
-        echo "No s'ha torbat la tasca\n";
+        $message = getMessage();
+        echo $message['messages']['borrarDades']['sqlite']['tasknotFound'];
     }
 
    
@@ -663,24 +654,20 @@ if (php_sapi_name() == 'cgi') {
                                 if($accio){
                                     $message = getMessage();
                                     echo $message['messages']['insertarDades']['sql']['feedbackOK'];
-                                    //echo "Tasca ingresada de forma correcta \n";
                                 }else{
-                                    //echo "No s'ha pogut ingresar la tasca \n";
                                     $message = getMessage();
                                     echo $message['messages']['insertarDades']['sql']['feedbackBad'];
                                 }
 
                             }else{
                                 
-                                askConfigSQL();
+                                //askConfigSQL();
                                 $accio = addTaskSQL($titol,$descripcio);
 
                                 if($accio){
-                                    //echo "Tasca ingresada de forma correcta \n";
                                     $message = getMessage();
                                     echo $message['messages']['insertarDades']['sql']['feedbackOK'];
                                 }else{
-                                    //echo "No s'ha pogut ingresar la tasca \n";
                                     $message = getMessage();
                                     echo $message['messages']['insertarDades']['sql']['feedbackOK'];
                                 }
@@ -695,13 +682,11 @@ if (php_sapi_name() == 'cgi') {
 
                             if($verify){
                                 insertData($titol,$descripcio);
-                                //echo "S'han insertat les dades de forma correcta \n";
                                 $message = getMessage();
                                 echo $message['messages']['insertarDades']['sqlite']['feedbackOK'];
                             }else{
                                 createSQLITE();
                                 insertData($titol,$descripcio);
-                                //echo "S'ha creat la base de dades SQLITE \n";
                                 $message = getMessage();
                                 echo $message['messages']['insertarDades']['sqlite']['feedbackOK'];
                             }
@@ -710,7 +695,6 @@ if (php_sapi_name() == 'cgi') {
                     }
 
                 }else{
-                    //infoadd();
                     $message = getMessage();
                     echo $message['messages']['infoadd'];
                 }
@@ -720,9 +704,7 @@ if (php_sapi_name() == 'cgi') {
                 $contador = 0;
                 if(($argc == 5 && ((!empty($arguments["t"]) && trim($arguments["t"]) != "") || (!empty($arguments["title"]) && trim($arguments["title"]) != "")) )){
         
-                    //$pathCSV = pathCSV();
-                    //$result = verifyExistDatabase();
-                    //$verify = verifiySQLITE();
+                    
 
                     $pathCFGyaml = pathCFGyaml();
 
@@ -741,7 +723,6 @@ if (php_sapi_name() == 'cgi') {
                                 $titol = $arguments['t'] ?? $arguments['title'];
                                 $accio = delete($titol);
                                 if ($accio) {
-                                    //echo "S'ha esborrat correctament la tasca '$titol'\n";
         
                                     $message = getMessage();
                                     echo $message['messages']['borrarDades']['sql']['feedbackOK'];
@@ -757,7 +738,6 @@ if (php_sapi_name() == 'cgi') {
         
         
                                 if ($result) {
-                                    //echo "S'ha esborrat correctament la tasca '$titol'\n";
                                     $message = getMessage();
                                     echo $message['messages']['borrarDades']['sqlite']['feedbackOK'];
                                     
@@ -773,7 +753,6 @@ if (php_sapi_name() == 'cgi') {
                         
    
                 }else{
-                    //infoDelete();
                     $message = getMessage();
                     echo $message['messages']['infodelete'];
                 }
@@ -816,7 +795,6 @@ if (php_sapi_name() == 'cgi') {
                                 $message = getMessage();
                                 echo $message['messages']['listarDades']['sql']['feedbackOK'];
         
-                                //echo "No s'ha trobat cap dada en la base de dades \n";
                             }
                             break;
     
@@ -833,7 +811,6 @@ if (php_sapi_name() == 'cgi') {
                  
 
             }else{
-                //infoList();
                 $message = getMessage();
                 echo $message['messages']['infolist'];
             }
@@ -867,7 +844,6 @@ if (php_sapi_name() == 'cgi') {
                                 if($resultadoMarcar){
                                     $message = getMessage();
                                     echo $message['messages']['marcarDades']['sqlite'];['feedbackOK'];
-                                    //echo "S'ha marcat la tasca seleccionada \n";
                                     $contador++;
                                 }else{
                                     $contador++;
@@ -880,7 +856,6 @@ if (php_sapi_name() == 'cgi') {
                                 if($result){
                                     $message = getMessage();
                                     echo $message['messages']['marcarDades']['sqlite']['feedbackOK'];
-                                    //echo "S'ha marcat la tasca '$titol' \n";
                                     $contador++;
                                 }else{
                                     $contador++;
@@ -897,7 +872,6 @@ if (php_sapi_name() == 'cgi') {
 
                    
                 }else{
-                    //infoMarcar();
                     $message = getMessage();
                     echo $message['messages']['infomarcar'];
                 }
@@ -905,12 +879,10 @@ if (php_sapi_name() == 'cgi') {
 
            
         default:
-            //infoGeneral();
             $message = getMessage();
             echo $message['messages']['infogeneral'];
         }
     }else{
-        //infoGeneral();
         $message = getMessage();
         echo $message['messages']['infogeneral'];
     }
