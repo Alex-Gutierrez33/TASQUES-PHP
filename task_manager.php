@@ -218,7 +218,6 @@ function createDatabase(){
         $resultadoCreateTable = mysqli_query($conn, $sqlCreateTable);
             
         if($resultadoCreateTable){
-            echo "S'ha creat la base de dades \n";
             $message = getMessage();
             echo $message['messages']['sql']['createDatabase']['feedbackOK'];
         }else{
@@ -620,9 +619,7 @@ if (php_sapi_name() == 'cgi') {
                         $respuesta = getmethod();
 
 
-                        if ($respuesta == 'SQL') {
-                            askConfigSQL();
-                        }
+                
 
                     }
 
