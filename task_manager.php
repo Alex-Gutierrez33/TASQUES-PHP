@@ -1,6 +1,5 @@
 <?php
 
-include ("guias_task-manager.php");
 require 'vendor/autoload.php';
 use Symfony\Component\Yaml\Yaml;
 
@@ -597,10 +596,12 @@ const delete = 'delete';
 const listar = 'list';
 const mark = 'mark';
 
-if (php_sapi_name() == 'cgi') {
-    die('El programa nomes es pot utilitzar en CLI');
+if (php_sapi_name() != 'cli') {
+    $message = getMessage();
+    echo $messageþ['messages']["errorCLI"];
+    die();
+    
 }else{
-
     $arguments = getopt("a:d:t:", array("action:","title:","description:"));
 
     if ($argc <= 7){
@@ -612,13 +613,18 @@ if (php_sapi_name() == 'cgi') {
 
                     if (file_exists($pathCFGyaml)) {
                         $respuesta = getmethod();
+
+                        if($respuesta != "SQL" && $respuesta != "SQLITE" && $respuesta != "CSV"){
+                            $message = getMessage();
+                            echo $message['messages']['errorBadMethod'];
+                        }
+
+
                     }else{
                         createYAML($pathCFGyaml);
                         $respuesta = verificarArchivos();
                         putMethod($respuesta);
                         $respuesta = getmethod();
-
-
                 
 
                     }
@@ -840,7 +846,7 @@ if (php_sapi_name() == 'cgi') {
                             
                                 if($resultadoMarcar){
                                     $message = getMessage();
-                                    echo $message['messages']['marcarDades']['sqlite'];['feedbackOK'];
+                                    echo $message['messages']['marcarDades']['sql']['feedbackOK'];
                                     $contador++;
                                 }else{
                                     $contador++;

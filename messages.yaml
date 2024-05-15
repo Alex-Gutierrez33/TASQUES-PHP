@@ -1,4 +1,8 @@
 messages: 
+  errorCLI: |
+    El programa s'ha de executar desde cli obligatoriament
+  errorBadMethod:  |
+    El mètode indicat no es vàlid
   infogeneral: |
    ***MANUAL D'ÚS***\n";
     
