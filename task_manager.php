@@ -104,7 +104,7 @@ function deleteTaskCSV($titol){
     
     while(($row = fgetcsv($file)) != false){
         if ($row[0] != $titol) {
-            $lista[] = $row;
+            array_push($lista,$row);
         }
     }
     
@@ -323,8 +323,6 @@ function listar(){
     }
         
    
-
-
 }
 
 function mark($titol, $descripcio){
@@ -351,10 +349,9 @@ function mark($titol, $descripcio){
             $sql = "UPDATE events SET completada = 1 WHERE ID = '$titol' AND '$descripcio' = 'done'";
             $resultado = mysqli_query($conn, $sql);       
         }else{
-            echo "No s'ha trobat la tasca a marcar\n";
             $message = getMessage();
             echo $message['messages']['marcarDades']['sql']['tasknotFound'];
-
+            
         }
 
         return $resultado;
@@ -387,10 +384,6 @@ function showTaskCSV(){
     
     fclose($file);
     
-
-    
-
-   
 
 }
 
@@ -537,8 +530,6 @@ function putMethod($respuesta){
     $contenidoYAML = yaml_emit($array);
 
     file_put_contents($pathCFG, $contenidoYAML);
-
-
 }
 
 function askConfigSQL(){
@@ -603,6 +594,7 @@ if (php_sapi_name() != 'cli') {
     
 }else{
     $arguments = getopt("a:d:t:", array("action:","title:","description:"));
+ 
 
     if ($argc <= 7){
         switch($arguments['a'] ?? $arguments['action']){
@@ -664,7 +656,6 @@ if (php_sapi_name() != 'cli') {
 
                             }else{
                                 
-                                //askConfigSQL();
                                 $accio = addTaskSQL($titol,$descripcio);
 
                                 if($accio){
@@ -707,8 +698,6 @@ if (php_sapi_name() != 'cli') {
                 $contador = 0;
                 if(($argc == 5 && ((!empty($arguments["t"]) && trim($arguments["t"]) != "") || (!empty($arguments["title"]) && trim($arguments["title"]) != "")) )){
         
-                    
-
                     $pathCFGyaml = pathCFGyaml();
 
                     if (file_exists($pathCFGyaml)) {
