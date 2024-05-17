@@ -96,35 +96,52 @@ function createCSV($tasca){
 
 function deleteTaskCSV($titol){
 
+    
+
     $pathCSV = pathCSV();
 
-    $file = fopen($pathCSV, 'r');
+    if(file_exists($pathCSV)){
 
-    $lista = [];
-    
-    while(($row = fgetcsv($file)) != false){
-        if ($row[0] != $titol) {
-            array_push($lista,$row);
+        $file = fopen($pathCSV, 'r');
+
+        $lista = [];
+        
+        while(($row = fgetcsv($file)) != false){
+            if ($row[0] != $titol) {
+                array_push($lista,$row);
+            }
         }
-    }
-    
-    fclose($file);
-    
-    $file = fopen($pathCSV, 'w');
-    
-    foreach ($lista as $fila) {
-        fputcsv($file, $fila);
-    }
-    
-    fclose($file);
+        
+        fclose($file);
+        
+        $file = fopen($pathCSV, 'w');
+        
+        foreach ($lista as $fila) {
+            fputcsv($file, $fila);
+        }
+        
+        fclose($file);
 
+        $message = getMessage();
+        echo $message['messages']['borrarDades']['csv']['feedbackOK'];
+    
+
+    }else{
+        $message = getMessage();
+        echo $message['messages']['borrarDades']['csv']['feedbackBad'];
+
+    }
+
+   
 }
 
 
 function markCSV($titol){
 
     $pathCSV = pathCSV();
-    $filaNueva = array();
+
+    if(file_exists($pathCSV)){
+        $filaNueva = array();
 
     $file = fopen($pathCSV, "r");
     while(($row = fgetcsv($file)) != false){
@@ -146,6 +163,11 @@ function markCSV($titol){
 
     $message = getMessage();
     echo $message['messages']['marcarDades']['csv']['feedbackOK'];
+    }else{
+        $message = getMessage();
+        echo $message['messages']['marcarDades']['csv']['feedbackBad'];
+    }
+    
 }
 
 
@@ -365,21 +387,31 @@ function mark($titol, $descripcio){
 
 function showTaskCSV(){
 
+
     $pathCSV = pathCSV();
-    $file = fopen($pathCSV, 'r');
+
+    if(file_exists($pathCSV)){
+
+        $file = fopen($pathCSV, 'r');
    
-    echo "Error no s'ha pogut obrir el arxiu\n";
-  
-    echo "TASQUES DISPONIBLES: " . "\n";
-    echo "=====================" . "\n";
-    
-    while(($row = fgetcsv($file)) != false){
-        echo "id:" . $row[0] . " ". "titol:" . $row[1] . " " . "descripcio:" . $row[2]." ". "completada:" . $row[3]."\n";
+        echo "Error no s'ha pogut obrir el arxiu\n";
+      
+        echo "TASQUES DISPONIBLES: " . "\n";
+        echo "=====================" . "\n";
         
+        while(($row = fgetcsv($file)) != false){
+            echo "id:" . $row[0] . " ". "titol:" . $row[1] . " " . "descripcio:" . $row[2]." ". "completada:" . $row[3]."\n";
+            
+        }
+        
+        fclose($file);
+        
+
+    }else{
+        $message = getMessage();
+        echo $message['messages']['listarDades']['csv']['feedbackBad'];
     }
-    
-    fclose($file);
-    
+   
 }
 
 function createSQLITE(){
@@ -442,20 +474,22 @@ function listData(){
     if (file_exists($pathSQLITE)) {
 
 
-    $db = new SQLite3($fileSQLITE);
+        $db = new SQLite3($pathSQLITE);
+        
+        $sql = "SELECT * FROM events";
+        
+        $result = $db->query($sql);
+
     
-    $sql = "SELECT * FROM events";
-    
-    $result = $db->query($sql);
-    
-    while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-        echo "ID: " . $row['id'] . "\n";
-        echo "Títol: " . $row['titol'] . "\n";
-        echo "Descripció: " . $row['descripcio'] . "\n";
-        echo "Estat: " . $row['completada'] . "\n";
-        echo "\n";
-    }
-       
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            echo "ID: " . $row['id'] . "\n";
+            echo "Títol: " . $row['titol'] . "\n";
+            echo "Descripció: " . $row['descripcio'] . "\n";
+            echo "Estat: " . $row['completada'] . "\n";
+            echo "\n";
+        }
+           
+     
     }else{
         $message = getMessage();
         echo $message['messages']['listarDades']['sqlite']['feedbackBad'];
@@ -466,25 +500,32 @@ function listData(){
 
 function markTASKSQLITE($titol, $descripcio){
     $fileSQLITE = pathSQLITE();
-    $db = new SQLite3($fileSQLITE);
 
-    $sql = "UPDATE events SET completada = 1 WHERE ID = '$titol' AND '$descripcio' = 'done'";
-    $sql2 = "SELECT * FROM events WHERE id = '$titol'";
+    if(file_exists($fileSQLITE)){
+        $db = new SQLite3($fileSQLITE);
 
-    $result = $db->exec($sql);
-    $result2 = $db->querySingle($sql2);
+        $sql = "UPDATE events SET completada = 1 WHERE ID = '$titol' AND '$descripcio' = 'done'";
+        $sql2 = "SELECT * FROM events WHERE id = '$titol'";
 
-   
-    if ($result2) {
         $result = $db->exec($sql);
-        return $result;
+        $result2 = $db->querySingle($sql2);
 
+    
+        if ($result2) {
+            $result = $db->exec($sql);
+            return $result;
+
+        }else{
+            $message = getMessage();
+            echo $message['messages']['marcarDades']['sqlite']['feedbackBad'];
+            return $result2;
+        }
     }else{
+        $message = getMessage();
+            echo $message['messages']['marcarDades']['sqlite']['feedbackBad'];
 
-       $message = getMessage();
-        echo $message['messages']['marcarDades']['sqlite']['feedbackBad'];
-        return $result2;
     }
+    
 
 }
 
@@ -711,7 +752,6 @@ if (php_sapi_name() != 'cli') {
                 break;
 
             case delete:
-                $contador = 0;
                 if(($argc == 5 && ((!empty($arguments["t"]) && trim($arguments["t"]) != "") || (!empty($arguments["title"]) && trim($arguments["title"]) != "")) )){
         
                     $pathCFGyaml = pathCFGyaml();
@@ -723,8 +763,7 @@ if (php_sapi_name() != 'cli') {
                             case 'CSV':
                                 $titol = $arguments['t'] ?? $arguments['title'];
                                 deleteTaskCSV($titol);
-                                $message = getMessage();
-                                echo $message['messages']['borrarDades']['csv']['feedbackOK'];
+                                
                                 break;
     
                             case 'SQL':
@@ -734,23 +773,19 @@ if (php_sapi_name() != 'cli') {
         
                                     $message = getMessage();
                                     echo $message['messages']['borrarDades']['sql']['feedbackOK'];
-                                    $contador++;
                                 }else{
-                                    $contador++;
                                 }
                                 break;
     
                             case 'SQLITE':
-                                $result = deleteData($titol);
-                                $contador++;
-        
+                                $titol = $arguments['t'] ?? $arguments['title'];
+
+                                $result = deleteData($titol);        
         
                                 if ($result) {
                                     $message = getMessage();
                                     echo $message['messages']['borrarDades']['sqlite']['feedbackOK'];
                                     
-                                }else{
-                                    $contador++;
                                 }
                                 break;      
                         } 
@@ -767,10 +802,8 @@ if (php_sapi_name() != 'cli') {
             break;
 
         case listar:
-            $contador = 0;
             if(($argc == 3) && ((!empty($arguments['a']) && trim($arguments['a']) != '') || (!empty($arguments['action']) && trim($arguments['action']) != ''))) {
-                
-               
+                               
                 $pathCFGyaml = pathCFGyaml();
 
                 if (file_exists($pathCFGyaml)) {
@@ -779,7 +812,6 @@ if (php_sapi_name() != 'cli') {
                     switch ($method) {
                         case 'CSV':
                             showTaskCSV();
-                            $contador++;
                             break;
     
                         case 'SQL':
@@ -798,16 +830,13 @@ if (php_sapi_name() != 'cli') {
                                     echo $fila["completada"]. " | ";
                                     echo "\n";
                                 }
-                                $contador++;
                             }else{
                                 $message = getMessage();
                                 echo $message['messages']['listarDades']['sql']['feedbackOK'];
-        
                             }
                             break;
     
                         case 'SQLITE':
-                            $contador++;
                             listData();
                             break;
                     }
@@ -817,7 +846,6 @@ if (php_sapi_name() != 'cli') {
                     echo $message['messages']['errorEmmagatzematge'];
                 }
                  
-
             }else{
                 $message = getMessage();
                 echo $message['messages']['infolist'];
@@ -825,12 +853,9 @@ if (php_sapi_name() != 'cli') {
             break;
 
         
-            case mark:
-                $contador = 0;
-    
+            case mark:    
                 if(($argc == 7 && ((!empty($arguments["t"]) && trim($arguments["t"]) != "") || (!empty($arguments["title"]) && trim($arguments["title"]) != "")) && ((!empty($arguments["d"])&& trim($arguments["d"]) == "done") || (!empty($arguments["description"]) && trim($arguments["description"]) == "done")))){
                     
-
                     $titol = $arguments['t'] ?? $arguments['title'];
                     $descripcio = $arguments['d'] ?? $arguments['description'];
                     
@@ -843,7 +868,6 @@ if (php_sapi_name() != 'cli') {
                         switch ($method) {
                             case 'CSV':
                                 markCSV($titol);
-                                $contador++;
                                 break;
     
                             case 'SQL':
@@ -852,9 +876,6 @@ if (php_sapi_name() != 'cli') {
                                 if($resultadoMarcar){
                                     $message = getMessage();
                                     echo $message['messages']['marcarDades']['sql']['feedbackOK'];
-                                    $contador++;
-                                }else{
-                                    $contador++;
                                 }
                                 break;
     
@@ -864,14 +885,8 @@ if (php_sapi_name() != 'cli') {
                                 if($result){
                                     $message = getMessage();
                                     echo $message['messages']['marcarDades']['sqlite']['feedbackOK'];
-                                    $contador++;
-                                }else{
-                                    $contador++;
-    
                                 }
-                                break;
-                            
-                            
+                                break; 
                         }
                     }else{
                         $message = getMessage();
