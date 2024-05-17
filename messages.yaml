@@ -114,15 +114,17 @@ messages:
   listarDades:
     sql:
       feedbackBad: |
-        No s'ha pogut marcar la base de dades
+        No s'ha pogut listar la base de dades
 
     csv:
       feedbackBad: |
-        No s'ha pogut marcar la tasca en el fitxer csv
+        No s'ha pogut listar la tasca en el fitxer csv
 
     sqlite: 
       feedbackBad: |
-        No s'ha pogut marcar la tasca de la base de dades sqlite
+        No s'ha pogut listar la tasca de la base de dades sqlite
+      taskNotFound: |
+        Nos s'ha trobat el arxiu
   errorEmmagatzematge: |
     No es pot executar aquesta acció !! NO EXISTEIX UN MEDI D'EMMAGATZEMATGE
 

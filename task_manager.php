@@ -360,8 +360,6 @@ function mark($titol, $descripcio){
 
     }
 
-    
-
 }
 
 
@@ -369,8 +367,6 @@ function showTaskCSV(){
 
     $pathCSV = pathCSV();
     $file = fopen($pathCSV, 'r');
-
-
    
     echo "Error no s'ha pogut obrir el arxiu\n";
   
@@ -384,7 +380,6 @@ function showTaskCSV(){
     
     fclose($file);
     
-
 }
 
 function createSQLITE(){
@@ -411,7 +406,17 @@ function insertData($titol, $descripcio){
 }
 
 function deleteData($titol){
+
+
     $fileSQLITE = pathSQLITE();
+
+    if(!file_exists($fileSQLITE)){
+        $message = getMessage();
+        echo $message['messages']['borrarDades']['sqlite']['tasknotFound'];
+        return;
+    }
+
+
     $db = new SQLite3($fileSQLITE);
 
     $sql = "DELETE FROM events WHERE id = '$titol'";
@@ -425,20 +430,24 @@ function deleteData($titol){
 
     }else{
         $message = getMessage();
-        echo $message['messages']['borrarDades']['sqlite']['tasknotFound'];
+        echo $message['messages']['borrarDades']['sqlite']['feedbackBad'];
     }
 
-   
 }
 
 function listData(){
-    $fileSQLITE = pathSQLITE();
+
+    $pathSQLITE = pathSQLITE();
+
+    if (file_exists($pathSQLITE)) {
+
+
     $db = new SQLite3($fileSQLITE);
-
+    
     $sql = "SELECT * FROM events";
-
+    
     $result = $db->query($sql);
-
+    
     while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
         echo "ID: " . $row['id'] . "\n";
         echo "Títol: " . $row['titol'] . "\n";
@@ -446,6 +455,13 @@ function listData(){
         echo "Estat: " . $row['completada'] . "\n";
         echo "\n";
     }
+       
+    }else{
+        $message = getMessage();
+        echo $message['messages']['listarDades']['sqlite']['feedbackBad'];
+        return;
+    }
+ 
 }
 
 function markTASKSQLITE($titol, $descripcio){
