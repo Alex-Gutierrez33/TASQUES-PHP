@@ -143,11 +143,11 @@ function markCSV($titol){
     if(file_exists($pathCSV)){
         $filaNueva = array();
 
-    $file = fopen($pathCSV, "r");
-    while(($row = fgetcsv($file)) != false){
-        if($row[0] == $titol){
-            $row[3] = 'SI';
-        }
+        $file = fopen($pathCSV, "r");
+        while(($row = fgetcsv($file)) != false){
+            if($row[0] == $titol){
+                $row[3] = 'SI';
+            }
 
         array_push($filaNueva, $row);
     }
@@ -289,7 +289,7 @@ function delete($titol){
 
     
 
-   $array = getParameSQL();
+    $array = getParameSQL();
 
     $servername = $array['database']['host'];
     $username = $array['database']['user'];
@@ -340,6 +340,7 @@ function listar(){
         $sql = "SELECT * FROM events";
         $resultado = mysqli_query($conn,$sql);
         return $resultado;
+
     } catch (mysqli_sql_exception $e) {
 
     }
@@ -394,7 +395,6 @@ function showTaskCSV(){
 
         $file = fopen($pathCSV, 'r');
    
-        echo "Error no s'ha pogut obrir el arxiu\n";
       
         echo "TASQUES DISPONIBLES: " . "\n";
         echo "=====================" . "\n";
@@ -674,7 +674,6 @@ if (php_sapi_name() != 'cli') {
                         $respuesta = verificarArchivos();
                         putMethod($respuesta);
                         $respuesta = getmethod();
-                
 
                     }
 
